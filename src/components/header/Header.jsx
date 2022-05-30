@@ -1,43 +1,87 @@
-import React from "react";
-import { BsFillSunFill } from "react-icons/bs";
-import { BsFillMoonFill } from "react-icons/bs";
-import "./Header.css";
+import React, { useEffect, useState } from "react";
 import Axios from "axios";
 
+import "./Header.css";
+
 const apiUrl =
-  "https://api.nomics.com/v1/currencies/ticker?key=77882cf11b2fa15b9446a784e3a66147fa9da562&ids=BTC,ETH&interval=1d,30d&convert=EUR&platform-currency=ETH&per-page=100&page=1";
+  "https://api.nomics.com/v1/currencies/ticker?key=77882cf11b2fa15b9446a784e3a66147fa9da562&ids=BTC,ETH,XRP,DOT,EGLD,SHIB&interval=1h,1d,30d&convert=EUR&per-page=100&page=1";
 
 const Header = () => {
-  const getPrices = () => {
-    Axios.get(apiUrl).then((response) => {
-      console.log(response);
-    });
+  const [prices, setPrices] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [search, setSearch] = useState("");
+
+  useEffect(() => {
+    getPrices();
+  }, []);
+
+  const getPrices = async () => {
+    try {
+      setLoading(true);
+      const response = await Axios.get(apiUrl);
+      const serverPrices = response.data.map((priceItem) => {
+        if (priceItem.name === "XRP") {
+          return {
+            ...priceItem,
+            name: "Ripple",
+          };
+        }
+        return priceItem;
+      });
+      setPrices(serverPrices);
+      setLoading(false);
+    } catch {
+      setLoading(false);
+    }
+    // Axios.get(apiUrl).then((response) => {
+    //   // console.log(response);
+    //   setPrices(response.data);
+    // });
+  };
+
+  const onInputChange = (event) => {
+    setSearch(event.target.value);
   };
 
   return (
     <div className="container-header">
+      <div className="container-search">
+        <input type="text" placeholder="Search.." onChange={onInputChange} />
+      </div>
       <div className="container-prices">
-        <table className="prices-table">
-          <th>#</th>
-          <th>Name</th>
-          <th>Price</th>
-        </table>
-      </div>
-      <div className="container-button">
-        <button onClick={getPrices}>Get Prices</button>
-      </div>
-      <div className="container-search-dark">
-        <div className="placeholder-container">
-          <input type="text" placeholder="Search.." />
-        </div>
-        <div className="darkmode-container">
-          <button>
-            <BsFillSunFill />
-          </button>
-          <button>
-            <BsFillMoonFill />
-          </button>
-        </div>
+        {loading === true ? (
+          <p>Loading</p>
+        ) : (
+          <table className="prices-table">
+            <thead>
+              <tr>
+                <th>Rank</th>
+                <th>Name</th>
+                <th>Price</th>
+              </tr>
+            </thead>
+            <tbody>
+              {prices
+                .filter((priceObj) => {
+                  if (
+                    priceObj.name.toLowerCase().includes(search.toLowerCase())
+                  ) {
+                    return true;
+                  }
+                  return false;
+                })
+                .map((priceObj, idx) => {
+                  return (
+                    <tr>
+                      <th>{idx + 1}</th>
+                      <th>{priceObj.name}</th>
+                      <th>{parseFloat(priceObj.price).toFixed(1)}</th>
+                    </tr>
+                  );
+                })}
+            </tbody>
+          </table>
+        )}
       </div>
     </div>
   );
