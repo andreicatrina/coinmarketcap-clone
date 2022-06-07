@@ -1,90 +1,56 @@
-import React, { useEffect, useState } from "react";
-import Axios from "axios";
-
+import React from "react";
 import "./Header.css";
+import { FaBitcoin } from "react-icons/fa";
+import { BsBellFill } from "react-icons/bs";
+import { FiSearch } from "react-icons/fi";
+import { AiOutlineMenu } from "react-icons/ai";
+import { IoIosArrowDown } from "react-icons/io";
+import { RiGasStationFill } from "react-icons/ri";
 
-const apiUrl =
-  "https://api.nomics.com/v1/currencies/ticker?key=77882cf11b2fa15b9446a784e3a66147fa9da562&ids=BTC,ETH,XRP,DOT,EGLD,SHIB&interval=1h,1d,30d&convert=EUR&per-page=100&page=1";
-
-const Header = () => {
-  const [prices, setPrices] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [search, setSearch] = useState("");
-
-  useEffect(() => {
-    getPrices();
-  }, []);
-
-  const getPrices = async () => {
-    try {
-      setLoading(true);
-      const response = await Axios.get(apiUrl);
-      const serverPrices = response.data.map((priceItem) => {
-        if (priceItem.name === "XRP") {
-          return {
-            ...priceItem,
-            name: "Ripple",
-          };
-        }
-        return priceItem;
-      });
-      setPrices(serverPrices);
-      setLoading(false);
-    } catch {
-      setLoading(false);
-    }
-    // Axios.get(apiUrl).then((response) => {
-    //   // console.log(response);
-    //   setPrices(response.data);
-    // });
-  };
-
-  const onInputChange = (event) => {
-    setSearch(event.target.value);
-  };
-
+function Header() {
   return (
-    <div className="container-header">
-      <div className="container-search">
-        <input type="text" placeholder="Search.." onChange={onInputChange} />
+    <div className="section-container">
+      <div className="header-container">
+        <div className="left-container">
+          <FaBitcoin className="logo-icon" />
+          CoinMarketCap
+        </div>
+        <div className="right-container">
+          <FiSearch className="magnify-icon" />
+          <BsBellFill className="notification-icon" />
+          <AiOutlineMenu className="menu-icon" />
+        </div>
       </div>
-      <div className="container-prices">
-        {loading === true ? (
-          <p>Loading</p>
-        ) : (
-          <table className="prices-table">
-            <thead>
-              <tr>
-                <th>Rank</th>
-                <th>Name</th>
-                <th>Price</th>
-              </tr>
-            </thead>
-            <tbody>
-              {prices
-                .filter((priceObj) => {
-                  if (
-                    priceObj.name.toLowerCase().includes(search.toLowerCase())
-                  ) {
-                    return true;
-                  }
-                  return false;
-                })
-                .map((priceObj, idx) => {
-                  return (
-                    <tr>
-                      <th>{idx + 1}</th>
-                      <th>{priceObj.name}</th>
-                      <th>{parseFloat(priceObj.price).toFixed(1)}</th>
-                    </tr>
-                  );
-                })}
-            </tbody>
-          </table>
-        )}
+      <div className="mini-info-container">
+        <span>Cryptos: 19,720</span>
+        <span>Exchanges: 520</span>
+        <span>Market Cap: $1,214,374,345,102</span>
+        <span>24h Vol: $70,241,323,410</span>
+        <span>Dominance: BTC: 46.2% ETH: 17,6%</span>
+        <span>
+          <RiGasStationFill className="gas-icon" />
+          ETH Gas: 63Gwei
+        </span>
+        <a href="#">
+          <IoIosArrowDown />
+        </a>
+      </div>
+      <div className="videos-container">
+        <video className="video" width="300" height="140" controls>
+          <source src="..Videos/Video1.mp4" type="video/mp4" />
+        </video>
+        <video className="video" width="300" height="140" controls>
+          <source src="..Videos/Video1.mp4" type="video/mp4" />
+        </video>
+        <video className="video" width="300" height="140" controls>
+          <source src="..Videos/Video1.mp4" type="video/mp4" />
+        </video>
+        <video className="video" width="300" height="140" controls>
+          <source src="..Videos/Video1.mp4" type="video/mp4" />
+        </video>
       </div>
     </div>
   );
-};
+}
 
 export default Header;
